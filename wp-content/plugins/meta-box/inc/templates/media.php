@@ -41,7 +41,7 @@
 
 <script id="tmpl-rwmb-media-status" type="text/html">
 	<# if ( data.maxFiles > 0 ) { #>
-		{{{ data.length }}}/{{{ data.maxFiles }}}
+		{{{ data.items }}}/{{{ data.maxFiles }}}
 		<# if ( 1 < data.maxFiles ) { #>  {{{ i18nRwmbMedia.multiple }}} <# } else {#> {{{ i18nRwmbMedia.single }}} <# } #>
 	<# } #>
 </script>

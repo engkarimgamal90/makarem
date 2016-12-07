@@ -1,7 +1,9 @@
-jQuery( function ( $ ) {
+jQuery( function( $ )
+{
 	'use strict';
 
-	function update() {
+	function update()
+	{
 		var $this = $( this ),
 			val = $this.val(),
 			$selected = $this.siblings( "[data-parent-id='" + val + "']" ),

@@ -2,27 +2,25 @@
 /**
  * Taxonomy field class which set post terms when saving.
  */
-class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
-
+class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field
+{
 	/**
 	 * Add default value for 'taxonomy' field
 	 *
 	 * @param $field
 	 * @return array
 	 */
-	public static function normalize( $field ) {
+	static function normalize( $field )
+	{
 		/**
 		 * Backwards compatibility with field args
 		 */
-		if ( isset( $field['options']['args'] ) ) {
+		if ( isset( $field['options']['args'] ) )
 			$field['query_args'] = $field['options']['args'];
-		}
-		if ( isset( $field['options']['taxonomy'] ) ) {
+		if ( isset( $field['options']['taxonomy'] ) )
 			$field['taxonomy'] = $field['options']['taxonomy'];
-		}
-		if ( isset( $field['options']['type'] ) ) {
+		if ( isset( $field['options']['type'] ) )
 			$field['field_type'] = $field['options']['type'];
-		}
 
 		/**
 		 * Set default field args
@@ -44,9 +42,11 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 		 * - If multiple taxonomies: show 'Select a term'
 		 * - If single taxonomy: show 'Select a %taxonomy_name%'
 		 */
-		if ( empty( $field['placeholder'] ) ) {
+		if ( empty( $field['placeholder'] ) )
+		{
 			$field['placeholder'] = __( 'Select a term', 'meta-box' );
-			if ( is_string( $field['taxonomy'] ) && taxonomy_exists( $field['taxonomy'] ) ) {
+			if ( is_string( $field['taxonomy'] ) && taxonomy_exists( $field['taxonomy'] ) )
+			{
 				$taxonomy_object      = get_taxonomy( $field['taxonomy'] );
 				$field['placeholder'] = sprintf( __( 'Select a %s', 'meta-box' ), $taxonomy_object->labels->singular_name );
 			}
@@ -65,7 +65,8 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 	 *
 	 * @return array
 	 */
-	public static function get_db_fields() {
+	static function get_db_fields()
+	{
 		return array(
 			'parent' => 'parent',
 			'id'     => 'term_id',
@@ -80,7 +81,8 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 	 *
 	 * @return array
 	 */
-	public static function get_options( $field ) {
+	static function get_options( $field )
+	{
 		$options = get_terms( $field['taxonomy'], $field['query_args'] );
 		return $options;
 	}
@@ -92,29 +94,32 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 	 * @param mixed $old
 	 * @param int   $post_id
 	 * @param array $field
+	 *
+	 * @return string
 	 */
-	public static function save( $new, $old, $post_id, $field ) {
+	static function save( $new, $old, $post_id, $field )
+	{
 		$new = array_unique( array_map( 'intval', (array) $new ) );
 		$new = empty( $new ) ? null : $new;
 		wp_set_object_terms( $post_id, $new, $field['taxonomy'] );
 	}
 
 	/**
-	 * Get raw meta value
+	 * Standard meta retrieval
 	 *
 	 * @param int   $post_id
+	 * @param bool  $saved
 	 * @param array $field
 	 *
-	 * @return mixed
+	 * @return array
 	 */
-	public static function raw_meta( $post_id, $field ) {
-		if ( empty( $field['id'] ) ) {
-			return '';
-		}
-
+	static function meta( $post_id, $saved, $field )
+	{
 		$meta = get_the_terms( $post_id, $field['taxonomy'] );
 		$meta = (array) $meta;
-		return wp_list_pluck( $meta, 'term_id' );
+		$meta = wp_list_pluck( $meta, 'term_id' );
+
+		return $meta;
 	}
 
 	/**
@@ -127,11 +132,13 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 	 *
 	 * @return array List of post term objects
 	 */
-	public static function get_value( $field, $args = array(), $post_id = null ) {
+	static function get_value( $field, $args = array(), $post_id = null )
+	{
 		$value = get_the_terms( $post_id, $field['taxonomy'] );
 
 		// Get single value if necessary
-		if ( ! $field['clone'] && ! $field['multiple'] && is_array( $value ) ) {
+		if ( ! $field['clone'] && ! $field['multiple'] && is_array( $value ) )
+		{
 			$value = reset( $value );
 		}
 		return $value;
@@ -140,12 +147,13 @@ class RWMB_Taxonomy_Field extends RWMB_Object_Choice_Field {
 	/**
 	 * Get option label
 	 *
-	 * @param string $value Option value
-	 * @param array  $field Field parameter
+	 * @param string   $value Option value
+	 * @param array    $field Field parameter
 	 *
 	 * @return string
 	 */
-	public static function get_option_label( $field, $value ) {
+	static function get_option_label( $value, $field )
+	{
 		return sprintf(
 			'<a href="%s" title="%s">%s</a>',
 			esc_url( get_term_link( $value ) ),

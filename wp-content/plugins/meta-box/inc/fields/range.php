@@ -2,8 +2,8 @@
 /**
  * HTML5 range field class.
  */
-class RWMB_Range_Field extends RWMB_Number_Field {
-
+class RWMB_Range_Field extends RWMB_Number_Field
+{
 	/**
 	 * Get field HTML
 	 *
@@ -11,8 +11,9 @@ class RWMB_Range_Field extends RWMB_Number_Field {
 	 * @param array $field
 	 * @return string
 	 */
-	public static function html( $meta, $field ) {
-		$output = parent::html( $meta, $field );
+	static function html( $meta, $field )
+	{
+		$output  = parent::html( $meta, $field );
 		$output .= sprintf( '<span class="rwmb-output">%s</span>', $meta );
 		return $output;
 	}
@@ -20,7 +21,8 @@ class RWMB_Range_Field extends RWMB_Number_Field {
 	/**
 	 * Enqueue styles
 	 */
-	public static function admin_enqueue_scripts() {
+	static function admin_enqueue_scripts()
+	{
 		wp_enqueue_style( 'rwmb-range', RWMB_CSS_URL . 'range.css', array(), RWMB_VER );
 		wp_enqueue_script( 'rwmb-range', RWMB_JS_URL . 'range.js', array(), RWMB_VER, true );
 	}
@@ -29,14 +31,36 @@ class RWMB_Range_Field extends RWMB_Number_Field {
 	 * Normalize parameters for field.
 	 *
 	 * @param array $field
+	 *
 	 * @return array
 	 */
-	public static function normalize( $field ) {
+	static function normalize( $field )
+	{
 		$field = wp_parse_args( $field, array(
-			'max' => 10,
+			'min'  => 0,
+			'max'  => 10,
+			'step' => 1,
 		) );
+
 		$field = parent::normalize( $field );
+
 		return $field;
+	}
+
+	/**
+	 * Get the attributes for a field
+	 *
+	 * @param array $field
+	 * @param mixed $value
+	 *
+	 * @return array
+	 */
+	static function get_attributes( $field, $value = null )
+	{
+		$attributes = parent::get_attributes( $field, $value );
+		$attributes['type'] = 'range';
+
+		return $attributes;
 	}
 
 	/**
@@ -49,17 +73,21 @@ class RWMB_Range_Field extends RWMB_Number_Field {
 	 *
 	 * @return int
 	 */
-	public static function value( $new, $old, $post_id, $field ) {
+	static function value( $new, $old, $post_id, $field )
+	{
 		$new = intval( $new );
 		$min = intval( $field['min'] );
 		$max = intval( $field['max'] );
 
-		if ( $new < $min ) {
+		if ( $new < $min )
+		{
 			return $min;
 		}
-		if ( $new > $max ) {
+		elseif ( $new > $max )
+		{
 			return $max;
 		}
+
 		return $new;
 	}
 }

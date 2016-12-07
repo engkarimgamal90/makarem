@@ -1,4 +1,5 @@
-jQuery( function ( $ ) {
+jQuery( function ( $ )
+{
 	'use strict';
 
 	/**
@@ -7,7 +8,8 @@ jQuery( function ( $ ) {
 	 *
 	 * @return void
 	 */
-	function update() {
+	function update()
+	{
 		var $this = $( this ),
 			options = $this.data( 'options' );
 		$this.siblings( '.select2-container' ).remove();

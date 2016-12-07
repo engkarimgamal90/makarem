@@ -2,14 +2,15 @@
 /**
  * Divider field class.
  */
-class RWMB_Divider_Field extends RWMB_Field {
-
+class RWMB_Divider_Field extends RWMB_Field
+{
 	/**
 	 * Enqueue scripts and styles
 	 *
 	 * @return void
 	 */
-	static function admin_enqueue_scripts() {
+	static function admin_enqueue_scripts()
+	{
 		wp_enqueue_style( 'rwmb-divider', RWMB_CSS_URL . 'divider.css', array(), RWMB_VER );
 	}
 
@@ -21,7 +22,8 @@ class RWMB_Divider_Field extends RWMB_Field {
 	 *
 	 * @return string
 	 */
-	static function begin_html( $meta, $field ) {
+	static function begin_html( $meta, $field )
+	{
 		$attributes = empty( $field['id'] ) ? '' : " id='{$field['id']}'";
 		return "<hr$attributes>";
 	}
@@ -34,7 +36,8 @@ class RWMB_Divider_Field extends RWMB_Field {
 	 *
 	 * @return string
 	 */
-	static function end_html( $meta, $field ) {
+	static function end_html( $meta, $field )
+	{
 		return '';
 	}
 }

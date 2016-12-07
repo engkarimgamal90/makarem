@@ -2,12 +2,7 @@
 	height: auto;
 	min-width: 200px;
 }
-#wpbody .rwmb-select-all {
-	display: block;
+
+#post-body .rwmb-select-all {
 	margin-top: 5px;
-}
-#wpbody .select2-selection--single,
-#wpbody .select2-selection--multiple,
-.select2-dropdown {
-	border-color: #ddd;
 }

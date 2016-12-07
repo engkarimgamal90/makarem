@@ -84,6 +84,25 @@ function makarem_custom_fields($meta_boxes) {
                     'post_parent__not_in' => array(0),
                 ),
             ),
+            array(
+                'id'     => $prefix.'details',
+                'type'   => 'group',
+                'clone'  => true,
+                'sort_clone' => true,
+                'fields' => array(
+                    array(
+                        'name' => __( 'Details title', 'rwmb' ),
+                        'id'   => 'details_title',
+                        'type' => 'text',
+                    ),
+                    array(
+                        'name' => __( 'Details content', 'rwmb' ),
+                        'id'   => 'details_content',
+                        'type' => 'wysiwyg',
+                    ),
+                    
+                ),
+            ),
         ),
         
     );

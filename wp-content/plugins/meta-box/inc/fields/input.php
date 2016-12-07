@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Abstract input field class which is used for all <input> fields.
  */
-abstract class RWMB_Input_Field extends RWMB_Field {
-
+abstract class RWMB_Input_Field extends RWMB_Field
+{
 	/**
 	 * Get field HTML
 	 *
@@ -12,9 +11,10 @@ abstract class RWMB_Input_Field extends RWMB_Field {
 	 * @param array $field
 	 * @return string
 	 */
-	public static function html( $meta, $field ) {
-		$attributes = self::call( 'get_attributes', $field, $meta );
-		return sprintf( '<input %s>%s', self::render_attributes( $attributes ), self::datalist( $field ) );
+	static function html( $meta, $field )
+	{
+		$attributes = call_user_func( array( RW_Meta_Box::get_class_name( $field ), 'get_attributes' ), $field, $meta );
+		return sprintf( '<input %s>%s', self::render_attributes( $attributes ), self::datalist_html( $field ) );
 	}
 
 	/**
@@ -23,13 +23,15 @@ abstract class RWMB_Input_Field extends RWMB_Field {
 	 * @param array $field
 	 * @return array
 	 */
-	public static function normalize( $field ) {
+	static function normalize( $field )
+	{
 		$field = parent::normalize( $field );
 		$field = wp_parse_args( $field, array(
 			'datalist' => false,
 			'readonly' => false,
 		) );
-		if ( $field['datalist'] ) {
+		if ( $field['datalist'] )
+		{
 			$field['datalist'] = wp_parse_args( $field['datalist'], array(
 				'id'      => $field['id'] . '_list',
 				'options' => array(),
@@ -45,33 +47,34 @@ abstract class RWMB_Input_Field extends RWMB_Field {
 	 * @param mixed $value
 	 * @return array
 	 */
-	public static function get_attributes( $field, $value = null ) {
+	static function get_attributes( $field, $value = null )
+	{
 		$attributes = parent::get_attributes( $field, $value );
 		$attributes = wp_parse_args( $attributes, array(
 			'list'        => $field['datalist'] ? $field['datalist']['id'] : false,
 			'readonly'    => $field['readonly'],
 			'value'       => $value,
 			'placeholder' => $field['placeholder'],
-			'type'        => $field['type'],
 		) );
 
 		return $attributes;
 	}
 
 	/**
-	 * Create datalist, if any.
+	 * Create datalist, if any
 	 *
 	 * @param array $field
 	 * @return array
 	 */
-	protected static function datalist( $field ) {
-		if ( empty( $field['datalist'] ) ) {
+	static function datalist_html( $field )
+	{
+		if ( empty( $field['datalist'] ) )
 			return '';
-		}
 
 		$datalist = $field['datalist'];
 		$html     = sprintf( '<datalist id="%s">', $datalist['id'] );
-		foreach ( $datalist['options'] as $option ) {
+		foreach ( $datalist['options'] as $option )
+		{
 			$html .= sprintf( '<option value="%s"></option>', $option );
 		}
 		$html .= '</datalist>';

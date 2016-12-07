@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Abstract class for any kind of choice field.
  */
-abstract class RWMB_Choice_Field extends RWMB_Field {
-
+abstract class RWMB_Choice_Field extends RWMB_Field
+{
 	/**
 	 * Walk options
 	 *
@@ -14,7 +13,8 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 * @param mixed $db_fields
 	 * @return string
 	 */
-	public static function walk( $field, $options, $db_fields, $meta ) {
+	public static function walk( $options, $db_fields, $meta, $field )
+	{
 		return '';
 	}
 
@@ -25,12 +25,14 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 * @param array $field
 	 * @return string
 	 */
-	public static function html( $meta, $field ) {
-		$meta      = (array) $meta;
-		$options   = self::call( 'get_options', $field );
-		$options   = self::call( 'filter_options', $field, $options );
-		$db_fields = self::call( 'get_db_fields', $field );
-		return ! empty( $options ) ? self::call( 'walk', $field, $options, $db_fields, $meta ) : null;
+	public static function html( $meta, $field )
+	{
+		$field_class = RW_Meta_Box::get_class_name( $field );
+		$meta        = (array) $meta;
+		$options     = call_user_func( array( $field_class, 'get_options' ), $field );
+		$db_fields   = call_user_func( array( $field_class, 'get_db_fields' ), $field );
+
+		return call_user_func( array( $field_class, 'walk' ), $options, $db_fields, $meta, $field );
 	}
 
 	/**
@@ -39,7 +41,8 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 * @param array $field
 	 * @return array
 	 */
-	public static function normalize( $field ) {
+	public static function normalize( $field )
+	{
 		$field = parent::normalize( $field );
 		$field = wp_parse_args( $field, array(
 			'flatten' => true,
@@ -54,7 +57,8 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 *
 	 * @return array
 	 */
-	public static function get_db_fields() {
+	public static function get_db_fields()
+	{
 		return array(
 			'parent' => 'parent',
 			'id'     => 'value',
@@ -69,43 +73,75 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 *
 	 * @return array
 	 */
-	public static function get_options( $field ) {
+	public static function get_options( $field )
+	{
 		$options = array();
-		foreach ( (array) $field['options'] as $value => $label ) {
+		foreach ( (array) $field['options'] as $value => $label )
+		{
 			$option = is_array( $label ) ? $label : array( 'label' => (string) $label, 'value' => (string) $value );
-			if ( isset( $option['label'] ) && isset( $option['value'] ) ) {
-				$options[ $option['value'] ] = (object) $option;
-			}
+			if ( isset( $option['label'] ) && isset( $option['value'] ) )
+				$options[$option['value']] = (object) $option;
 		}
 		return $options;
 	}
 
 	/**
-	 * Filter options for walker
+	 * Output the field value
+	 * Display unordered list of option labels, not option values
 	 *
-	 * @param array $field
+	 * @param  array    $field   Field parameters
+	 * @param  array    $args    Additional arguments. Not used for these fields.
+	 * @param  int|null $post_id Post ID. null for current post. Optional.
 	 *
-	 * @return array
+	 * @return string Link(s) to post
 	 */
-	public static function filter_options( $field, $options ) {
-		$db_fields = self::call( 'get_db_fields', $field );
-		$label     = $db_fields['label'];
-		foreach ( $options as &$option ) {
-			$option         = apply_filters( 'rwmb_option', $option, $field );
-			$option->$label = apply_filters( 'rwmb_option_label', $option->$label, $option, $field );
+	public static function the_value( $field, $args = array(), $post_id = null )
+	{
+		$field_class = RW_Meta_Box::get_class_name( $field );
+		$value       = call_user_func( array( $field_class, 'get_value' ), $field, $args, $post_id );
+
+		if ( ! $value )
+			return '';
+
+		if ( $field['clone'] && $field['multiple'] )
+		{
+			$output = '<ul>';
+			foreach ( $value as $subvalue )
+			{
+				$output .= '<li>';
+				$output .= call_user_func( array( $field_class, 'list_option_labels' ), $subvalue, $field );
+				$output .= '</li>';
+			}
+			$output .= '</ul>';
 		}
-		return $options;
+		elseif ( $field['clone'] || $field['multiple'] )
+		{
+			$output = call_user_func( array( $field_class, 'list_option_labels' ), $value, $field );
+		}
+		else
+		{
+			$output = call_user_func( array( $field_class, 'get_option_label' ), $value, $field );
+		}
+		return $output;
 	}
 
 	/**
-	 * Format a single value for the helper functions.
+	 * List option labels
 	 *
-	 * @param array  $field Field parameter
-	 * @param string $value The value
+	 * @param array $meta
+	 * @param array $field Field parameter
 	 * @return string
 	 */
-	public static function format_single_value( $field, $value ) {
-		return self::call( 'get_option_label', $field, $value );
+	public static function list_option_labels( $meta, $field )
+	{
+		$field_class = RW_Meta_Box::get_class_name( $field );
+		$output      = '<ul>';
+		foreach ( $meta as $m )
+		{
+			$output .= sprintf( '<li>%s</li>', call_user_func( array( $field_class, 'get_option_label' ), $m, $field ) );
+		}
+
+		return $output . '</ul>';
 	}
 
 	/**
@@ -116,8 +152,9 @@ abstract class RWMB_Choice_Field extends RWMB_Field {
 	 *
 	 * @return string
 	 */
-	public static function get_option_label( $field, $value ) {
-		$options = self::call( 'get_options', $field );
-		return $options[ $value ]->label;
+	public static function get_option_label( $value, $field )
+	{
+		$options = call_user_func( array( RW_Meta_Box::get_class_name( $field ), 'get_options' ), $field );
+		return $options[$value]->label;
 	}
 }
