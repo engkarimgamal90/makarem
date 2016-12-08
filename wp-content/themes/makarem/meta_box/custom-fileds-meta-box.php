@@ -71,7 +71,7 @@ function makarem_custom_fields($meta_boxes) {
                 'id' => $prefix . 'email',
                 'type' => 'email',
             ),
-            array(
+            /*array(
                 'name' => __('City', 'mk_admin'),
                 'id' => $prefix . 'city',
                 'type'        => 'post',
@@ -83,7 +83,7 @@ function makarem_custom_fields($meta_boxes) {
                     'posts_per_page' => -1,
                     'post_parent__not_in' => array(0),
                 ),
-            ),
+            ),*/
             array(
                 'id'     => $prefix.'details',
                 'type'   => 'group',
